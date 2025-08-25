@@ -1,15 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concert List</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Concert List</title>
+  <style>
+    :root {
+      --bg: #f7f7f9;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --border: #e5e7eb;
+      --primary: #1f2937;
+      --danger: #b91c1c;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--text);
+    }
+    .container {
+      max-width: 1000px; margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px; margin: 0 0 16px;
+      letter-spacing: .2px;
+    }
+    .toolbar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--primary);
+      font-weight: 600;
+      transition: transform .06s ease, box-shadow .12s ease, background .12s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .btn-danger {
+      background: #fff; color: var(--danger); border-color: var(--danger);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      color: var(--muted);
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+    }
+    tbody td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .col-id { width: 60px; }
+    .col-title { width: 180px; }
+    .col-performer { width: 160px; }
+    .col-date { width: 140px; white-space: nowrap; }
+    .col-desc { max-width: 320px; color: #333; }
+    .desc-ellipsis {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .actions a { margin-right: 8px; }
+    .empty {
+      text-align: center; color: var(--muted);
+      padding: 28px;
+    }
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      h1 { font-size: 22px; }
+      .btn { padding: 8px 12px; font-weight: 600; }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <h1>Concert List</h1>
-    <a href="/add-concert/">Add Concert</a>
-    <!-- TODO: show delete link for each concert -->
 
-    <!-- TODO: Add list of concerts -->
+    <div class="toolbar">
+      <a class="btn btn-primary" href="/add-concert">Add Concert</a>
+      <a class="btn btn-danger" href="/delete-concert"
+         onclick="return confirm('Delete ALL concerts?');">Delete All</a>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th class="col-title">Title</th>
+              <th class="col-performer">Performer</th>
+              <th class="col-date">Date</th>
+              <th class="col-desc">Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${concerts == null or #lists.isEmpty(concerts)}">
+              <td class="empty" colspan="6">No concerts found. Click “Add Concert” to create one.</td>
+            </tr>
+
+            <tr th:each="concert : ${concerts}">
+              <td class="col-id" th:text="${concert.id}">1</td>
+              <td class="col-title" th:text="${concert.title}">Title</td>
+              <td class="col-performer" th:text="${concert.performer}">Performer</td>
+              <td class="col-date" th:text="${#dates.format(concert.date, 'yyyy-MM-dd')}">2025-08-25</td>
+              <td class="col-desc">
+                <div class="desc-ellipsis" th:text="${concert.description}">Description</div>
+              </td>
+              <td class="actions">
+                <a class="btn" th:href="@{/delete-concert/{id}(id=${concert.id})}"
+                   onclick="return confirm('Delete concert ?');">Delete</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
 </body>
 </html>
